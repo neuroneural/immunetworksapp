@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='home.css') }}">
+
+</head>
+<body>
+    <div class="topbar">
+        <a href="/home">Home</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <div class="sidebar">
+        <div class="block">
+            <a href="/home">Simulations</a>
+        </div>
+        <div class="block">
+            <a href="#D" onclick="displaydata('Datasets')">Datasets</a>
+        </div>
+        <div class="block">
+            <a href="#t" onclick="displayTable('trained.pth files')">trained.pth files</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div id="table-container"></div>
+    </div>
+
+    <script>
+        var data = {
+            "Simulations": [
+                {% for item in simulation_data  %}
+                    { "ID": '{{ item["ID"] }}', "Name": '{{ item["Name"] }}', "Description": '{{ item["Description"] }}', "Classes": {{ item["Classes"] }}, "Users": [{% for user in item["Users"] %}'{{ user }}'{% if not loop.last %}, {% endif %}{% endfor %}] }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            "Datasets": [
+                {% for item in Datasets %}
+                    {
+                        "ID": {{ item["ID"] }},
+                        "Name": "{{ item["Name"] }}",
+                        "Description": "{{ item["Description"] }}",
+                        "Total_Datasets": {{ item["Total_Datasets"] }},
+                        "Image_Types": {{ item["Image_Types"] }}
+                    }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            "trained.pth files": [
+                {% for item in pretrfiles %}
+                    { "ID": {{ item["ID"] }}, "Name": "{{ item["Name"] }}", "Description": "{{ item["Description"] }}" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+
+        function displaySimulations(buttonText) {
+            var tableData = data[buttonText];
+            var tableHTML = '<h1>' + buttonText + '</h1><table><tr>';
+            // Header
+            for (var key in tableData[0]) {
+                tableHTML += '<th>' + key + '</th>';
+            }
+            tableHTML += '</tr>';
+            // Rows
+            tableData.forEach(function (item) {
+                tableHTML += '<tr>';
+                for (var key in item) {
+                    tableHTML += '<td>' + item[key] + '</td>';
+                }
+                tableHTML += '<td><form action="/home/simulations" method="post"><input type="hidden" name="simulation_id" value="' + item.ID + '"><input type="hidden" name="simulation_name" value="' + item.Name + '"><input type="hidden" name="simulation_description" value="' + item.Description + '"><input type="hidden" name="simulation_classes" value="' + item.Classes + '"><input type="hidden" name="simulation_users" value="' + item.Users.join(',') + '"><button type="submit">Go to Simulation</button></form></td>';
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</table>';
+            // tableHTML += '<button class="create-button" action="/home/simulations" method="PUT">Create New</button>';
+            tableHTML += '<button class="create-button"><a href="/home/createsim" method = "GET">Create New</a></button>';
+            document.getElementById('table-container').innerHTML = tableHTML;
+        }
+
+        function displaydata(buttonText) {
+            var tableData = data[buttonText];
+            if (tableData) {
+                var tableHTML = '<h1>' + buttonText + '</h1><table><tr><th>ID</th><th>Name</th><th>Description</th><th>Total Datasets</th><th>Image Types</th></tr>';
+                tableData.forEach(function (item) {
+                    tableHTML += '<tr><td>' + item.ID + '</td><td>' + item.Name + '</td><td>' + item.Description + '</td><td>' + item.Total_Datasets + '</td><td>' + item.Image_Types + '</td></tr>';
+                });
+                tableHTML += '</table>';
+                // Add create new button
+                tableHTML += '<button class="create-button"><a href="/home/createdata" method="GET">Create New</a></button>';
+                document.querySelector('.content').innerHTML = tableHTML;
+            } else {
+                document.querySelector('.content').innerHTML = '<p>No data available for ' + buttonText + '</p>';
+            }
+        }
+
+        function displayTable(buttonText) {
+            var tableData = data[buttonText];
+            if (tableData) {
+                var tableHTML = '<h1>' + buttonText + '</h1><table><tr><th>ID</th><th>Name</th><th>Description</th></tr>';
+                tableData.forEach(function (item) {
+                    tableHTML += '<tr><td>' + item.ID + '</td><td>' + item.Name + '</td><td>' + item.Description + '</td></tr>';
+                });
+                tableHTML += '</table>';
+                // Add create new button
+                tableHTML += '<button class="create-button" onclick="createNew(\'' + buttonText + '\')">Create New</button>';
+                document.querySelector('.content').innerHTML = tableHTML;
+            } else {
+                document.querySelector('.content').innerHTML = '<p>No data available for ' + buttonText + '</p>';
+            }
+        }
+
+        function createNew(type) {
+            alert('Creating new entry for ' + type);
+        }
+        window.onload = function() {
+            displaySimulations('Simulations');
+        };
+    </script>
+</body>
+</html>

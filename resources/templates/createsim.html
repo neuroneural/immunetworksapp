@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='createsim.css') }}">
+    <title>Immunetworks</title>
+</head>
+<body>
+    <div class="header">
+        <div class="header-options">
+            <a onclick="window.location.href = '/home'" class="header-option">Home Page</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Create Simulation</h1>
+        <form id="userForm" action="/home/createsim" method="POST">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <br>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            <br>
+            <label for="checkThreshold">Check Threshold:</label>
+            <input type="number" id="checkThreshold" name="checkThreshold" min="0" step="1" required>
+            <br>
+            <label for="classes">Classes:</label>
+            <input type="number" id="classes" name="classes" min="0" step="1" required>
+            <br>
+            <h2>Select Users</h2>
+            <div class="user-checkbox">
+                {% for user in users %}
+                <label>
+                    <input type="checkbox" name="users" value="{{ user }}">
+                    {{ user }}
+                </label>
+                <br>
+                {% endfor %}
+            </div>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+</html>

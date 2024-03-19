@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<body>
+<h1>Training Loss and Dice Scores Over Epochs</h1>
+<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+<script>
+const epochs = {{ fetched_data['Train']['Epoch'] }};
+const trainLoss = {{ fetched_data['Train']['Loss'] }};
+const dice0 = {{ fetched_data['Train']['Dice0'] }};
+const dice1 = {{ fetched_data['Train']['Dice1'] }};
+const dice2 = {{ fetched_data['Train']['Dice2'] }};
+
+new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: epochs,
+    datasets: [{
+      label: 'Training Loss',
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "rgba(0,0,255,1.0)",
+      borderColor: "rgba(0,0,255,0.1)",
+      data: trainLoss
+    }, {
+      label: 'Dice Score 0',
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "rgba(255,0,0,1.0)",
+      borderColor: "rgba(255,0,0,0.1)",
+      data: dice0
+    }, {
+      label: 'Dice Score 1',
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "rgba(0,255,0,1.0)",
+      borderColor: "rgba(0,255,0,0.1)",
+      data: dice1
+    }, {
+      label: 'Dice Score 2',
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "rgba(255,255,0,1.0)",
+      borderColor: "rgba(255,255,0,0.1)",
+      data: dice2
+    }]
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        scaleLabel: {
+          display: true,
+          labelString: 'Epoch'
+        }
+      }],
+      yAxes: [{
+        scaleLabel: {
+          display: true,
+          labelString: 'Loss / Dice Score'
+        },
+        ticks: {
+          callback: function(value, index, values) {
+            return value.toExponential();
+          }
+        }
+      }]
+    }
+  }
+});
+</script>
+
+</body>
+</html>

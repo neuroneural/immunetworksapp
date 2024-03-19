@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immunetworks</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='signup.css') }}">
+</head>
+<body>
+    {% if validation == 0 %}
+    <div class="container">
+    <h1>Verify Email</h1>
+    <form action="/auth/signup" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <input type="hidden" name="validation" value="{{ validation }}">
+        <input type="submit" value="Verify">
+    </form>
+    </div>
+    {% elif validation == 1 %}
+    <div class="container">
+    <h1>Confirm Email Verification</h1>
+    <form action="/auth/signup" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"   required value="{{ request.form['email'] }}"><br><br>
+        <input type="hidden" name="validation" value="{{ validation }}">
+        <input type="submit" value="Confirm">
+    </form>
+    </div>
+    {% else %}
+    <div class="container">
+    <h1>SignUp User</h1>
+    <form action="/auth/signup" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"   required value="{{ request.form['email'] }}"><br><br>
+        
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="hidden" name="validation" value="{{ validation }}">
+        <input type="submit" value="Signup">
+    </form>
+    </div>
+    {% endif %}
+</body>
+</html>

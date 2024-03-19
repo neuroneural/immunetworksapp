@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immunetworks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='simulations.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3, h4 {
+            margin: 0;
+            color: #333;
+        }
+        ul {
+            padding: 0;
+            list-style: none;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        select, input[type="number"], input[type="submit"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-options">
+            <a onclick="window.location.href = '/home'" class="header-option">Home Page</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Simulator Dashboard</h1>
+        <h2>Run ID: {{ runid }}</h2>
+        <h3>Status: <span class="status-symbol">{{ 'Running' if status == 1 else 'Not Running' }}</span></h3>
+
+        <h4>Simulation Details:</h4>
+        <ul>
+            <li><strong>Description:</strong> {{ data["body"][runid]["description"] }}</li>
+            <li><strong>Name:</strong> {{ data["body"][runid]["name"] }}</li>
+            <li><strong>Number of Users:</strong> {{ data["body"][runid]["users"]|length }}</li>
+            <li><strong>Classes:</strong> {{ data["body"][runid]["classes"] }}</li>
+        </ul>
+
+        {% if status == 0 %}
+        <div class="form-container">
+            <form action="/home/simulations/startsimulation" method="post" id="simulationForm">
+                <label for="dataset">Select Dataset:</label>
+                <select name="dataset" id="dataset" onchange="updateColumns()">
+                    {% for dataset, columns in dataset_columns.items() %}
+                    <option value="{{ dataset }}">{{ dataset }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <label for="column">Select Column:</label>
+                <select name="column" id="column">
+                </select>
+                <br>
+                <label for="epochs">Number of Epochs:</label>
+                <select name="epochs" id="epochs">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <!-- Add more options as needed -->
+                </select>
+                <br>
+                <label for="learning_rate">Learning Rate:</label>
+                <input type="number" step="0.000000001" name="learning_rate" id="learning_rate" value="0.1">
+                <br>
+                <input type="hidden" name="run_id" value="{{ runid }}">
+                <input type="hidden" name="classes" value='{{ data["body"][runid]["classes"] }}'> <!-- Pass classes data -->
+                <input type="submit" value="Start Simulation">
+            </form>
+        </div>
+        {% endif %}
+        
+        <div class="button-container">
+            {% if status == 1 %}
+            <button class="button" onclick="viewSimulation()"><i class="fas fa-eye"></i> View Simulation</button>
+            {% endif %}
+        </div>
+    </div>
+
+<script>
+    function viewSimulation() {
+        // Add logic to view the simulation
+        window.location.href = '/home/simulations/viewsimulation?run_id=' + '{{ runid }}';
+    }
+
+    function updateColumns() {
+        var datasetSelect = document.getElementById('dataset');
+        var columnSelect = document.getElementById('column');
+        var dataset = datasetSelect.value;
+        columnSelect.innerHTML = ''; // Clear current options
+
+        // Retrieve columns associated with the selected dataset from dataset_columns
+        var columns = {{ dataset_columns|tojson }};
+
+        // Populate column dropdown with options associated with selected dataset
+        columns[dataset].forEach(function(column) {
+            var option = document.createElement('option');
+            option.text = column;
+            option.value = column;
+            columnSelect.add(option);
+        });
+    }
+    
+</script>
+</body>
+</html>
