@@ -5,44 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Immunetworks</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='signup.css') }}">
+    <style>
+        /* Style for the popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+            max-width: 400px;
+            width: 80%;
+            text-align: center;
+        }
+
+        .popup p {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .popup button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .popup button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
+    <!-- Popup message -->
+    <div id="popup" class="popup">
+        <p id="popupMessage"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
     {% if validation == 0 %}
     <div class="container">
-    <h1>Verify Email</h1>
-    <form action="/auth/signup" method="post">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
-        <input type="hidden" name="validation" value="{{ validation }}">
-        <input type="submit" value="Verify">
-    </form>
+        <h1>Verify Email</h1>
+        <form action="/auth/signup" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+            <input type="hidden" name="validation" value="{{ validation }}">
+            <input type="submit" value="Verify">
+        </form>
     </div>
     {% elif validation == 1 %}
     <div class="container">
-    <h1>Confirm Email Verification</h1>
-    <form action="/auth/signup" method="post">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email"   required value="{{ request.form['email'] }}"><br><br>
-        <input type="hidden" name="validation" value="{{ validation }}">
-        <input type="submit" value="Confirm">
-    </form>
+        <h1>Confirm Email Verification</h1>
+        <form action="/auth/signup" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"   required value="{{ request.form['email'] }}"><br><br>
+            <input type="hidden" name="validation" value="{{ validation }}">
+            <input type="submit" value="Confirm">
+        </form>
     </div>
     {% else %}
     <div class="container">
-    <h1>SignUp User</h1>
-    <form action="/auth/signup" method="post">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email"   required value="{{ request.form['email'] }}"><br><br>
-        
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <input type="hidden" name="validation" value="{{ validation }}">
-        <input type="submit" value="Signup">
-    </form>
+        <h1>SignUp User</h1>
+        <form action="/auth/signup" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"   required value="{{ request.form['email'] }}"><br><br>
+            
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+            <input type="hidden" name="validation" value="{{ validation }}">
+            <input type="submit" value="Signup">
+        </form>
     </div>
     {% endif %}
+
+    <!-- JavaScript for the popup -->
+    <script>
+        function openPopup(message) {
+            var popup = document.getElementById('popup');
+            var popupMessage = document.getElementById('popupMessage');
+            popupMessage.innerHTML = message;
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            var popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+
+        // Triggering the popup onload if needed
+        // Example usage: openPopup("Your message here");
+        // Remove this line if you don't want the popup to show onload
+        openPopup("{{ message }}");
+    </script>
 </body>
 </html>
