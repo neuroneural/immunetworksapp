@@ -1,4 +1,6 @@
 appenv/
 *__pycache__*
 training.log
+immunetworks.spec
+dist/
 immunetworks.db
