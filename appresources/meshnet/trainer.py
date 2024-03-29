@@ -100,6 +100,7 @@ class training():
             epoch = 0
             while epoch != self.epochs:
                 logging.info("Epoch : "+str(epoch))
+                self.model.train()
                 for image, label in self.train:
                     try:
 
@@ -156,6 +157,7 @@ class training():
                     except Exception as e:
                         logging.error(f"Error during training: {e}")
 
+                self.model.eval()
                 with torch.no_grad():
                     for image, label in self.valid:
                         try:
