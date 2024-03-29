@@ -3,15 +3,6 @@ import platform
 import subprocess
 import sys
 
-def install_venv():
-    """Check if venv module is available."""
-    try:
-        import venv
-    except ImportError:
-        if platform.system() == "Windows":
-            subprocess.check_call(["pip3", "install", "virtualenv"])
-        else:
-            subprocess.check_call(["pip3", "install", "python3-venv"])
 
 def create_virtualenv():
     """Create a virtual environment using appropriate method based on OS."""
@@ -28,9 +19,6 @@ def install_requirements():
                            "install", "-r", "requirements.txt"])
 
 def main():
-    print('installing venv modules')
-    install_venv()
-
     print("Creating virtual environment...")
     create_virtualenv()
 
