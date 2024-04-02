@@ -209,16 +209,14 @@ create_venv() {
 }
 
 install_requirements() {
-    if [ -f "app.py" ]; then
-        echo "Creating one-file executable using PyInstaller..."
-        ./myvenv/bin/pyinstaller --onefile --add-data "resources:resources" --add-data "appresources:appresources" "app.py"
-        if [ $? -eq 0 ]; then
-            echo "Executable created."
-        else
-            echo "Executable creation failed"
-        fi
+    echo "Installing requirements..."
+    ./myvenv/bin/pip install -r requirements.txt
+    if [ $? -eq 0 ]; then
+        echo "Requirements installed."
+        return 0
     else
-        echo "app.py file not found."
+        echo "requirements.txt file not found."
+        return 1
     fi
 }
 
