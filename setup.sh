@@ -40,7 +40,8 @@ check_python_macos() {
         return 0
     else
         echo "Python 3 is not installed. Attempting to install..."
-        if brew install python3; then
+        brew install python3
+        if [ $? -eq 0 ]; then
             echo "Python 3 installation successful."
             return 0
         else
@@ -57,7 +58,8 @@ check_python_debian() {
         return 0
     else
         echo "Python 3 is not installed. Attempting to install..."
-        if sudo apt-get update && sudo apt-get install -y python3; then
+        sudo apt-get update && sudo apt-get install -y python3
+        if [ $? -eq 0 ]; then
             echo "Python 3 installation successful."
             return 0
         else
@@ -74,7 +76,8 @@ check_python_redhat() {
         return 0
     else
         echo "Python 3 is not installed. Attempting to install..."
-        if sudo yum install -y python3; then
+        sudo yum install -y python3
+        if [ $? -eq 0 ]; then
             echo "Python 3 installation successful."
             return 0
         else
@@ -91,7 +94,8 @@ check_pip_macos() {
         return 0
     else
         echo "pip3 is not installed. Attempting to install..."
-        if brew install pip3; then
+        brew install pip3
+        if [ $? -eq 0 ]; then
             echo "pip3 installation successful."
             return 0
         else
@@ -108,7 +112,8 @@ check_pip_debian() {
         return 0
     else
         echo "pip3 is not installed. Attempting to install..."
-        if sudo apt-get update && sudo apt-get install -y python3-pip; then
+        sudo apt-get update && sudo apt-get install -y python3-pip
+        if [ $? -eq 0 ]; then
             echo "pip3 installation successful."
             return 0
         else
@@ -125,7 +130,8 @@ check_pip_redhat() {
         return 0
     else
         echo "pip3 is not installed. Attempting to install..."
-        if sudo yum install -y python3-pip; then
+        sudo yum install -y python3-pip
+        if [ $? -eq 0 ]; then
             echo "pip3 installation successful."
             return 0
         else
@@ -142,7 +148,8 @@ check_venv_macos() {
         return 0
     else
         echo "Python 3 venv module is not installed. Attempting to install..."
-        if python3 -m pip install virtualenv; then
+        python3 -m pip install virtualenv
+        if [ $? -eq 0 ]; then
             echo "Python 3 venv module installation successful."
             return 0
         else
@@ -159,7 +166,8 @@ check_venv_debian() {
         return 0
     else
         echo "Python 3 venv module is not installed. Attempting to install..."
-        if sudo apt-get update && sudo apt-get install -y python3-venv; then
+        sudo apt-get update && sudo apt-get install -y python3-venv
+        if [ $? -eq 0 ]; then
             echo "Python 3 venv module installation successful."
             return 0
         else
@@ -176,7 +184,8 @@ check_venv_redhat() {
         return 0
     else
         echo "Python 3 venv module is not installed. Attempting to install..."
-        if sudo yum install -y python3-venv; then
+        sudo yum install -y python3-venv
+        if [ $? -eq 0 ]; then
             echo "Python 3 venv module installation successful."
             return 0
         else
@@ -188,29 +197,41 @@ check_venv_redhat() {
 # Call the appropriate function based on the OS
 
 create_venv() {
-    echo "Creating virtual environment 'myvenv' on macOS..."
-    if python3 -m venv myvenv; then
+    echo "Creating virtual environment 'myvenv'"
+    python3 -m venv myvenv
+    if [ $? -eq 0 ]; then
         echo "Virtual environment 'myvenv' created."
+        return 0
     else
-        echo "This is not macOS. Cannot create virtual environment."
+        echo "Cannot create virtual environment."
+        return 1
     fi
 }
 
 install_requirements() {
-    echo "Installing requirements..."
-    if ./myvenv/bin/pip install -r requirements.txt; then
-        echo "Requirements installed."
+    if [ -f "app.py" ]; then
+        echo "Creating one-file executable using PyInstaller..."
+        ./myvenv/bin/pyinstaller --onefile --add-data "resources:resources" --add-data "appresources:appresources" "app.py"
+        if [ $? -eq 0 ]; then
+            echo "Executable created."
+        else
+            echo "Executable creation failed"
+        fi
     else
-        echo "requirements.txt file not found."
+        echo "app.py file not found."
     fi
 }
+
 
 # Function to create a one-file executable using PyInstaller
 create_executable() {
     if [ -f "app.py" ]; then
         echo "Creating one-file executable using PyInstaller..."
-        ./myvenv/bin/pyinstaller --onefile --add-data "resources:resources" --add-data "appresources:appresources" "app.py"
-        echo "Executable created."
+        if ./myvenv/bin/pyinstaller --onefile --add-data "resources:resources" --add-data "appresources:appresources" "app.py"; then
+            echo "Executable created."
+        else
+            echo "failed to create executable"
+        fi
     else
         echo "app.py file not found."
     fi
