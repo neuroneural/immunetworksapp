@@ -173,8 +173,7 @@ check_venv_debian() {
 
 # Function to check if Python 3's venv module exists, and install if necessary (Red Hat-based Linux)
 check_venv_redhat() {
-        sudo yum install python3-devel
-        sudo yum install -y python3-venv
+        sudo pip3 install virtualenv
         if [ $? -eq 0 ]; then
             echo "Python 3 venv module installation successful."
             return 0
