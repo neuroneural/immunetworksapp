@@ -161,11 +161,6 @@ check_venv_macos() {
 
 # Function to check if Python 3's venv module exists, and install if necessary (Debian-based Linux)
 check_venv_debian() {
-    if python3 -m venv --help &>/dev/null; then
-        echo "Python 3 venv module is already installed."
-        return 0
-    else
-        echo "Python 3 venv module is not installed. Attempting to install..."
         sudo apt-get update && sudo apt-get install -y python3-venv
         if [ $? -eq 0 ]; then
             echo "Python 3 venv module installation successful."
@@ -174,16 +169,10 @@ check_venv_debian() {
             echo "Failed to install Python 3 venv module."
             return 1
         fi
-    fi
 }
 
 # Function to check if Python 3's venv module exists, and install if necessary (Red Hat-based Linux)
 check_venv_redhat() {
-    if python3 -m venv --help &>/dev/null; then
-        echo "Python 3 venv module is already installed."
-        return 0
-    else
-        echo "Python 3 venv module is not installed. Attempting to install..."
         sudo yum install -y python3-venv
         if [ $? -eq 0 ]; then
             echo "Python 3 venv module installation successful."
@@ -192,7 +181,6 @@ check_venv_redhat() {
             echo "Failed to install Python 3 venv module."
             return 1
         fi
-    fi
 }
 # Call the appropriate function based on the OS
 

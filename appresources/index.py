@@ -7,7 +7,7 @@ def home():
     # Your home page logic here
     path = get_path(current_app.config['global_variables']['db'])
     print(path)
-    if path is  0:
+    if path ==  0:
         return render_template('fixpath.html')
 
     return render_template('index.html')

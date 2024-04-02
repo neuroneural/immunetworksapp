@@ -166,7 +166,10 @@ class training():
 
                     except Exception as e:
                         logging.error(f"Error during training: {e}")
-                        deactivate_user(self.url, self.runid ,self.keys)
+                        logging.info(" Exception Updating with collected aggregated gradients")
+                        self.optimizer.step()
+                        self.scheduler.step()
+                        logging.info("Exception Optmizer/Scheduler - step")
 
                 self.model.eval()
                 with torch.no_grad():
@@ -185,7 +188,6 @@ class training():
                             logging.info(valid_metrics)
                         except Exception as e:
                             logging.error(f"Error during validation: {e}")
-                            deactivate_user(self.url, self.runid ,self.keys)
                 
                 logging.info('Uploading stat dict to db')
                 # upload_model_to_database(model, run_id, loss=None, db_name='immunetworks.db'):
@@ -196,6 +198,7 @@ class training():
         except Exception as e:
             logging.error(f"Error in training function: {e}")
             deactivate_user(self.url, self.runid ,self.keys)
+            self.end_simulation(self.db,str(self.runid))
 
 # Example usage
 # Create a logging object
