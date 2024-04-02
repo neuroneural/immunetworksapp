@@ -12,6 +12,7 @@ from appresources.createdata import createdata_bp
 from appresources.startsimulation import startsimulation_bp
 from appresources.viewsimulations import viewsimulation_bp
 from appresources.fixpath import fixpath_bp
+from appresources.pthmodule import pthmodule_bp
 
 
 comp = create_tables('immunetworks.db')
@@ -34,4 +35,5 @@ def create_app():
     app.register_blueprint(startsimulation_bp, url_prefix='/home/simulations')
     app.register_blueprint(fixpath_bp)
     app.register_blueprint(viewsimulation_bp, url_prefix='/home/simulations')
+    app.register_blueprint(pthmodule_bp,url_prefix='/home/pth')
     return app

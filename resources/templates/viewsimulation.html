@@ -1,74 +1,141 @@
 <!DOCTYPE html>
 <html>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+</head>
 <body>
-<h1>Training Loss and Dice Scores Over Epochs</h1>
-<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+  <h1>Training Loss and Dice Scores Over Epochs</h1>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <canvas id="trainingChart" style="width:100%;max-width:600px;"></canvas>
+    <canvas id="validationChart" style="width:100%;max-width:600px;"></canvas>
+  </div>
 
-<script>
-const epochs = {{ fetched_data['Train']['Epoch'] }};
-const trainLoss = {{ fetched_data['Train']['Loss'] }};
-const dice0 = {{ fetched_data['Train']['Dice0'] }};
-const dice1 = {{ fetched_data['Train']['Dice1'] }};
-const dice2 = {{ fetched_data['Train']['Dice2'] }};
+  <script>
+    const epochs = {{ fetched_data['Train']['Epoch'] }};
+    const trainLoss = {{ fetched_data['Train']['Loss'] }};
+    const dice0 = {{ fetched_data['Train']['Dice0'] }};
+    const dice1 = {{ fetched_data['Train']['Dice1'] }};
+    const dice2 = {{ fetched_data['Train']['Dice2'] }};
 
-new Chart("myChart", {
-  type: "line",
-  data: {
-    labels: epochs,
-    datasets: [{
-      label: 'Training Loss',
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "rgba(0,0,255,1.0)",
-      borderColor: "rgba(0,0,255,0.1)",
-      data: trainLoss
-    }, {
-      label: 'Dice Score 0',
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "rgba(255,0,0,1.0)",
-      borderColor: "rgba(255,0,0,0.1)",
-      data: dice0
-    }, {
-      label: 'Dice Score 1',
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "rgba(0,255,0,1.0)",
-      borderColor: "rgba(0,255,0,0.1)",
-      data: dice1
-    }, {
-      label: 'Dice Score 2',
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "rgba(255,255,0,1.0)",
-      borderColor: "rgba(255,255,0,0.1)",
-      data: dice2
-    }]
-  },
-  options: {
-    scales: {
-      xAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Epoch'
+    new Chart("trainingChart", {
+      type: "line",
+      data: {
+        labels: epochs,
+        datasets: [{
+          label: 'Training Loss',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(0,0,255,1.0)",
+          borderColor: "rgba(0,0,255,0.1)",
+          data: trainLoss
+        }, {
+          label: 'Dice Score 0',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(255,0,0,1.0)",
+          borderColor: "rgba(255,0,0,0.1)",
+          data: dice0
+        }, {
+          label: 'Dice Score 1',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(0,255,0,1.0)",
+          borderColor: "rgba(0,255,0,0.1)",
+          data: dice1
+        }, {
+          label: 'Dice Score 2',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(255,255,0,1.0)",
+          borderColor: "rgba(255,255,0,0.1)",
+          data: dice2
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Epoch'
+            }
+          }],
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Loss / Dice Score'
+            },
+            ticks: {
+              callback: function(value, index, values) {
+                return value.toExponential();
+              }
+            }
+          }]
         }
-      }],
-      yAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Loss / Dice Score'
-        },
-        ticks: {
-          callback: function(value, index, values) {
-            return value.toExponential();
-          }
-        }
-      }]
-    }
-  }
-});
-</script>
+      }
+    });
 
+    const epochs1 = {{ fetched_data['Valid']['Epoch'] }};
+    const trainLoss1 = {{ fetched_data['Valid']['Loss'] }};
+    const dice01 = {{ fetched_data['Valid']['Dice0'] }};
+    const dice11 = {{ fetched_data['Valid']['Dice1'] }};
+    const dice21 = {{ fetched_data['Valid']['Dice2'] }};
+
+    new Chart("validationChart", {
+      type: "line",
+      data: {
+        labels: epochs1,
+        datasets: [{
+          label: 'Validation Loss',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(0,0,255,1.0)",
+          borderColor: "rgba(0,0,255,0.1)",
+          data: trainLoss1
+        }, {
+          label: 'Dice Score 0',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(255,0,0,1.0)",
+          borderColor: "rgba(255,0,0,0.1)",
+          data: dice01
+        }, {
+          label: 'Dice Score 1',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(0,255,0,1.0)",
+          borderColor: "rgba(0,255,0,0.1)",
+          data: dice11
+        }, {
+          label: 'Dice Score 2',
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "rgba(255,255,0,1.0)",
+          borderColor: "rgba(255,255,0,0.1)",
+          data: dice21
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Epoch'
+            }
+          }],
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Loss / Dice Score'
+            },
+            ticks: {
+              callback: function(value, index, values) {
+                return value.toExponential();
+              }
+            }
+          }]
+        }
+      }
+    });
+  </script>
 </body>
 </html>

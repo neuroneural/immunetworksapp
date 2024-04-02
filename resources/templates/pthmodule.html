@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Form</h1>
+        <!-- Check if message exists, and display it -->
+        {% if message %}
+        <div id="popup" style="background-color: #f44336; color: white; padding: 10px; margin-bottom: 20px;">
+            {{ message }}
+        </div>
+        {% endif %}
+        <form id="uploadForm" action="/upload" method="post">
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id" value="{{ id }}" readonly>
+
+            <label for="description">Description:</label>
+            <input type="text" id="description" name="description" value="{{ description }}" readonly>
+
+            <label for="file_path">Path to .pth File:</label>
+            <input type="text" id="file_path" name="file_path">
+
+            <input type="submit" value="Upload">
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission
+            
+            // Get form data
+            var id = document.getElementById("id").value;
+            var description = document.getElementById("description").value;
+            var filePath = document.getElementById("file_path").value;
+
+            // Redirect to the desired route with parameters
+            var redirectUrl = "/home/pth/pthmodule/upload/?id=" + encodeURIComponent(id) + "&description=" + encodeURIComponent(description) + "&file_path=" + encodeURIComponent(filePath);
+            window.location.href = redirectUrl;
+        });
+
+        // Function to close the popup message after 3 seconds
+        window.onload = function() {
+            setTimeout(function() {
+                var popup = document.getElementById("popup");
+                if (popup) {
+                    popup.style.display = "none";
+                }
+            }, 3000); // 3000 milliseconds = 3 seconds
+        };
+    </script>
+</body>
+</html>

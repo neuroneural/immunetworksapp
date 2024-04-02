@@ -4,7 +4,7 @@ from appresources.meshnet.loader import Scanloader
 from appresources.meshnet.dice import faster_dice
 from appresources.meshnet.trainer import training as tr
 import threading
-from appresources.models import insert_simulation_data, start_simulation, end_simulation, get_tokens, get_path
+from appresources.models import upload_model_to_database, get_model_stat_data, insert_simulation_data, start_simulation, end_simulation, get_tokens, get_path
 
 startsimulation_bp = Blueprint('startsimulation', __name__)
 
@@ -15,6 +15,8 @@ def call_training(run_id, get_token, db_file, id_token, classes, epochs, label, 
         training =  tr(
             table = table,
             url = url,
+            get_stat = get_model_stat_data,
+            upload_model = upload_model_to_database,
             meshnet=enMesh_checkpoint, 
             start_simulation = start_simulation,
             end_simulation = end_simulation,

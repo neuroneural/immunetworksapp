@@ -47,7 +47,14 @@
             ],
             "trained.pth files": [
                 {% for item in pretrfiles %}
-                    { "ID": {{ item["ID"] }}, "Name": "{{ item["Name"] }}", "Description": "{{ item["Description"] }}" }{% if not loop.last %},{% endif %}
+                    { 
+                        "ID": {{ item["ID"] }}, 
+                        "Name": "{{ item["Name"] }}", 
+                        "Description": "{{ item["Description"] }}",
+                        "Loss": "{{ item["Loss"] }}",
+                        "Upload": "{{ item["Upload"] }}",
+                        "Download": "{{ item["Download"] }}"
+                    }{% if not loop.last %},{% endif %}
                 {% endfor %}
             ]
         };
@@ -94,17 +101,47 @@
         function displayTable(buttonText) {
             var tableData = data[buttonText];
             if (tableData) {
-                var tableHTML = '<h1>' + buttonText + '</h1><table><tr><th>ID</th><th>Name</th><th>Description</th></tr>';
+                var tableHTML = '<h1>' + buttonText + '</h1><table><tr><th>ID</th><th>Name</th><th>Description</th><th>Loss</th><th>Action</th></tr>';
                 tableData.forEach(function (item) {
-                    tableHTML += '<tr><td>' + item.ID + '</td><td>' + item.Name + '</td><td>' + item.Description + '</td></tr>';
+                    tableHTML += '<tr><td>' + item.ID + '</td><td>' + item.Name + '</td><td>' + item.Description + '</td><td>' + item.Loss + '</td>';
+                    
+                    // Add buttons for Upload and Download only if value is 1
+                    if (item.Upload === '1') {
+                        tableHTML += '<td><button onclick="uploadFile(\'' + item.ID + '\',\'' + item.Description + '\')">Upload</button></td>';
+                    } else {
+                        tableHTML += '<td></td>'; // empty cell if Upload value is not 1
+                    }
+                    
+                    if (item.Download === '1') {
+                        tableHTML += '<td><button onclick="downloadFile(\'' + item.ID + '\')">Download</button></td>';
+                    } else {
+                        tableHTML += '<td></td>'; // empty cell if Download value is not 1
+                    }
+                    
+                    tableHTML += '</tr>';
                 });
                 tableHTML += '</table>';
                 // Add create new button
-                tableHTML += '<button class="create-button" onclick="createNew(\'' + buttonText + '\')">Create New</button>';
                 document.querySelector('.content').innerHTML = tableHTML;
             } else {
                 document.querySelector('.content').innerHTML = '<p>No data available for ' + buttonText + '</p>';
             }
+        }
+
+
+        // Functions for handling upload and download actions
+        function uploadFile(id, description) {
+            // Implement upload functionality
+            var uploadUrl = "/home/pth/pthmodule/upload/";
+            uploadUrl += '?id=' + encodeURIComponent(id); // Pass ID as URL parameter
+            uploadUrl += '&description=' + encodeURIComponent(description);
+            window.location.href = uploadUrl;
+        }
+
+        function downloadFile(id) {
+            // Implement download functionality
+            var downloadurl = "/home/pth/pthmodule/download/" + id;
+            window.location.href = downloadurl;
         }
 
         function createNew(type) {

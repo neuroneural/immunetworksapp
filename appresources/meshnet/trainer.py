@@ -58,8 +58,10 @@ def deactivate_user(url, runid, keys):
         logging.error(f"Failed to deactivate user: {e}")
 
 class training():
-    def __init__(self, insert_simulation_data, start_simulation, end_simulation, table, keys, url, get_token, meshnet, runid, dice, loader, modelAE, dbfile, l_r=0.003125, classes=3, epochs=10, cubes=1, label='GWlabels'):
+    def __init__(self, upload_model, get_stat, insert_simulation_data, start_simulation, end_simulation, table, keys, url, get_token, meshnet, runid, dice, loader, modelAE, dbfile, l_r=0.003125, classes=3, epochs=10, cubes=1, label='GWlabels'):
         try:
+            self.upload_model = upload_model
+            self.get_stat = get_stat
             self.keys = keys
             self.url = url
             self.dice = dice
@@ -90,8 +92,15 @@ class training():
                 steps_per_epoch=len(self.train),
                 epochs=self.epochs)
             logging.info('Initilizing training successful')
+            if self.get_stat(int(self.runid))[0]:
+                model_state_binary = self.get_stat(int(self.runid))[0]
+                with open(str(self.runid)+'_model_state_loaded.pth', 'wb') as f:
+                    f.write(model_state_binary)
+                self.model.load_state_dict(torch.load(str(self.runid)+'_model_state_loaded.pth'))
+
         except Exception as e:
             logging.error(f"Initialization failed: {e}")
+            deactivate_user(self.url, self.runid ,self.keys)
 
     def train_f(self):
         try:
@@ -154,8 +163,10 @@ class training():
                         self.optimizer.step()
                         self.scheduler.step()
                         logging.info("Optmizer/Scheduler - step")
+
                     except Exception as e:
                         logging.error(f"Error during training: {e}")
+                        deactivate_user(self.url, self.runid ,self.keys)
 
                 self.model.eval()
                 with torch.no_grad():
@@ -174,13 +185,17 @@ class training():
                             logging.info(valid_metrics)
                         except Exception as e:
                             logging.error(f"Error during validation: {e}")
-
-
+                            deactivate_user(self.url, self.runid ,self.keys)
+                
+                logging.info('Uploading stat dict to db')
+                # upload_model_to_database(model, run_id, loss=None, db_name='immunetworks.db'):
+                self.upload_model(model = self.model,run_id=self.runid, loss= loss.item())
                 epoch += 1
             deactivate_user(self.url, self.runid ,self.keys)
             self.end_simulation(self.db,str(self.runid))
         except Exception as e:
             logging.error(f"Error in training function: {e}")
+            deactivate_user(self.url, self.runid ,self.keys)
 
 # Example usage
 # Create a logging object

@@ -31,14 +31,14 @@ def view_simulator():
             data['Train']['Dice2'].append(i[5])
             c+=1
         c =1
+    
         for i in fetched_data['valid'][1]:
             data['Valid']['Epoch'].append(c)
-            data['Valid']['Loss'].append(i[0])
-            data['Valid']['Dice0'].append(i[1])
-            data['Valid']['Dice1'].append(i[2])
-            data['Valid']['Dice2'].append(i[3])
+            data['Valid']['Loss'].append(i[1])
+            data['Valid']['Dice0'].append(i[2])
+            data['Valid']['Dice1'].append(i[3])
+            data['Valid']['Dice2'].append(i[4])
             c+=1
-
 
         # end_simulation(current_app.config['global_variables']['db'],str(runid))
         return render_template('viewsimulation.html', fetched_data=data, runid = runid)

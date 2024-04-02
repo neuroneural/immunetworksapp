@@ -3,13 +3,60 @@ import os
 import json
 import zlib
 import sqlite3
+import torch
 import requests
 from datetime import datetime, timedelta
 import nibabel as nib
 import numpy as np
 import pandas as pd
 
+##########model.pth####################
 
+def upload_model_to_database(model, run_id, loss=None, db_name='immunetworks.db'):
+    torch.save(model.state_dict(), 'model_state.pth')
+    with open('model_state.pth', 'rb') as f:
+        model_state_binary = f.read()
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT Runid FROM models WHERE Runid=?", (run_id,))
+    existing_row = cursor.fetchone()
+
+    if existing_row:
+        if loss is None:
+            cursor.execute("UPDATE models SET Model_data=? WHERE Runid=?", (model_state_binary, run_id))
+        else:
+            cursor.execute("UPDATE models SET Model_data=?, Loss=? WHERE Runid=?", (model_state_binary, loss, run_id))
+    else:
+        if loss is None:
+            cursor.execute("INSERT INTO models (Runid, Model_data) VALUES (?, ?)", (run_id, model_state_binary))
+        else:
+            cursor.execute("INSERT INTO models (Runid, Model_data, Loss) VALUES (?, ?, ?)", (run_id, model_state_binary, loss))
+
+    conn.commit()
+    conn.close()
+    os.remove('model_state.pth')
+
+
+def upload_modelpth_to_database(run_id, modelpth, db_name='immunetworks.db'):
+    with open(modelpth, 'rb') as f:
+        model_state_binary = f.read()
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR REPLACE INTO models (Runid, Model_data) VALUES (?, ?)", (run_id, model_state_binary))
+    conn.commit()
+    conn.close()
+
+def get_model_stat_data(run_id, db_name='immunetworks.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT Model_data,Loss FROM models WHERE Runid=?", (run_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return row[0], row[1]
+    else:
+        return None, None
 
 #######simulations##########
 def start_simulation( db, runid, classes):
@@ -133,6 +180,12 @@ def create_tables(db):
     c.execute('''CREATE TABLE IF NOT EXISTS pathfix (
                     path TEXT
                   )''')
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS models (
+                        Runid INTEGER PRIMARY KEY,
+                        Model_data BLOB DEFAULT NULL,
+                        Loss REAL DEFAULT NULL
+                    )''')
 
     c.execute("DELETE FROM auth_tokens")
     c.execute("DELETE FROM simulator_status")
