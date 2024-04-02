@@ -1,4 +1,5 @@
 appenv/
+myenv/
 *__pycache__*
 training.log
 dist/
