@@ -57,6 +57,38 @@ def deactivate_user(url, runid, keys):
     except Exception as e:
         logging.error(f"Failed to deactivate user: {e}")
 
+def convert_weights_to_serializable_dict(weights):
+    serializable_weights = {}
+    for key, value in weights.items():
+        if isinstance(value, torch.Tensor):
+            serializable_weights[key] = value.tolist()
+        else:
+            serializable_weights[key] = value
+    return json.dumps(serializable_weights)
+
+def upload_weights(url,weights,keys,runid):
+    try:
+        data = {
+            "weights": convert_weights_to_serializable_dict(weights),
+            "runid": int(runid)
+        }
+        json_data = json.dumps(data)
+        headers = {'Content-Type': 'application/json','Authorization':keys}
+        return requests.post(url+'/weights', data=json_data, headers=headers).json()
+    except Exception as e:
+        logging.error(f"Failed to upload weights: {e}")
+
+def get_weights(url,keys,runid):
+    try:
+        data = {
+            "runid": int(runid)
+        }
+        json_data = json.dumps(data)
+        headers = {'Content-Type': 'application/json','Authorization':keys}
+        return requests.post(url+'/weightsavg', data=json_data, headers=headers).json()
+    except Exception as e:
+        logging.error(f"Failed to get weights: {e}")
+
 class training():
     def __init__(self, upload_model, get_stat, insert_simulation_data, start_simulation, end_simulation, table, keys, url, get_token, meshnet, runid, dice, loader, modelAE, dbfile, l_r=0.003125, classes=3, epochs=10, cubes=1, label='GWlabels'):
         try:
@@ -97,7 +129,26 @@ class training():
                 with open(str(self.runid)+'_model_state_loaded.pth', 'wb') as f:
                     f.write(model_state_binary)
                 self.model.load_state_dict(torch.load(str(self.runid)+'_model_state_loaded.pth'))
-
+            try:
+                logging.info('Uploading weights')
+                upload_weights(url = self.url,weights=self.model.state_dict(),keys=self.keys,runid=self.runid)
+                try:
+                    weights = get_weights(url=self.url,runid=self.runid, keys=self.keys)
+                    logging.info('Getting weights for model')
+                    while weights['statusCode']!=200:
+                        time.sleep(6)
+                        weights = get_weights(url=self.url,runid=self.runid, keys=self.keys)
+                    if weights['result']!=0:
+                        result_dict = json.loads(weights['result'])
+                        new_state_dict = {}
+                        for key, value in result_dict.items():
+                                new_state_dict[key] = torch.tensor(value)
+                        self.model.load_state_dict(new_state_dict)
+                        logging.info('Got weights and updated model')
+                except Exception as e:
+                    logging.error(f"Failed to get weights: {e}")
+            except Exception as e:
+                logging.error(f"Failed to upload weights: {e}")
         except Exception as e:
             logging.error(f"Initialization failed: {e}")
             deactivate_user(self.url, self.runid ,self.keys)
@@ -192,6 +243,11 @@ class training():
                 logging.info('Uploading stat dict to db')
                 # upload_model_to_database(model, run_id, loss=None, db_name='immunetworks.db'):
                 self.upload_model(model = self.model,run_id=self.runid, loss= loss.item())
+                try:
+                    logging.info(f'Uploading weights after Ecoch: {epoch}')
+                    upload_weights(url = self.url,weights=self.model.state_dict(),keys=self.keys,runid=self.runid)
+                except Exception as e:
+                    logging.error(f"Failed to upload weights after epoch {epoch}: {e}")
                 epoch += 1
             deactivate_user(self.url, self.runid ,self.keys)
             self.end_simulation(self.db,str(self.runid))

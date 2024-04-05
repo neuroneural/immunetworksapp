@@ -5,3 +5,4 @@ training.log
 dist/
 build/
 immunetworks.db
+myvenv/
